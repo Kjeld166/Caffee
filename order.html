@@ -18,6 +18,9 @@
 <body>
     <h1>Bestellung aufgeben</h1>
     <div id="drinks"></div>
+    
+    <h2>Getränke</h2>
+    <div id="drinkList"></div>
 
     <script type="module">
         import { db } from "./firebase.js";
@@ -39,6 +42,36 @@
             };
             container.appendChild(btn);
         });
+        </script>
+            <script>
+      function loadDrinks() {
+        const drinks = JSON.parse(localStorage.getItem("drinks")) || [];
+        const list = document.getElementById("drinkList");
+        list.innerHTML = "";
+    
+        drinks.forEach(drink => {
+          const item = document.createElement("div");
+          item.style.border = "1px solid #ccc";
+          item.style.margin = "10px 0";
+          item.style.padding = "10px";
+    
+          item.innerHTML = `
+            <img src="${drink.image}" alt="${drink.name}" style="max-width:100px"><br>
+            <strong>${drink.name}</strong><br>
+            <em>${drink.description}</em><br>
+            <button onclick="orderDrink('${drink.name}')">Bestellen</button>
+          `;
+          list.appendChild(item);
+        });
+      }
+    
+      function orderDrink(name) {
+        alert("Du hast " + name + " bestellt!");
+        // Hier könnte man die Bestellung erweitern
+      }
+    
+      window.onload = loadDrinks;
+
     </script>
 </body>
 </html>
