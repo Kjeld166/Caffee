@@ -2,24 +2,49 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <title>Bestellungen</title>
+  <title>Kaffee-Bestellungen</title>
   <style>
-    body { font-family:sans-serif; padding:20px; }
-    h1 { text-align:center; }
-    .order { border:1px solid #ccc; margin:10px; padding:10px; border-radius:10px; }
-    .done { background:#c8f7c5; }
+    body { font-family: sans-serif; padding: 20px; }
+    h1 { text-align: center; }
+    .order { border: 1px solid #ccc; margin: 10px; padding: 15px; border-radius: 10px; }
+    .done { background: #c8f7c5; }
+    #qr { text-align: center; margin: 20px; }
+    #order-link { display: block; margin-top: 10px; font-size: 18px; }
   </style>
 </head>
 <body>
+
   <h1>☕ Kaffee-Bestellungen</h1>
+
+  <div id="qr">
+    <h3>Gäste können hier bestellen:</h3>
+    <img id="qr-code" alt="QR Code">
+    <a id="order-link" href="#" target="_blank">➡️ Zur Bestellseite</a>
+  </div>
+
+  <h2>Offene Bestellungen</h2>
   <div id="orders"></div>
 
   <script type="module">
-    import { db } from "./firebase.js";
-    import { collection, query, orderBy, onSnapshot, updateDoc, doc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import { getFirestore, collection, query, orderBy, onSnapshot, updateDoc, doc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
+    // 👉 Hier deine Firebase Config einsetzen
+    const firebaseConfig = {
+      apiKey: "DEIN_API_KEY",
+      authDomain: "DEIN_PROJEKT.firebaseapp.com",
+      projectId: "DEIN_PROJEKT_ID",
+      storageBucket: "DEIN_PROJEKT.appspot.com",
+      messagingSenderId: "DEINE_SENDER_ID",
+      appId: "DEINE_APP_ID"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // --- Bestellungen anzeigen ---
     const ordersRef = collection(db, "orders");
-    const q = query(ordersRef, orderBy("created","asc"));
+    const q = query(ordersRef, orderBy("created", "asc"));
     const container = document.getElementById("orders");
 
     onSnapshot(q, snapshot => {
@@ -31,14 +56,25 @@
         div.innerHTML = `
           <b>${data.drinkName}</b><br>
           Status: ${data.status}<br>
-          <button ${data.status==="fertig" ? "disabled" : ""}>Fertig</button>
+          <button ${data.status === "fertig" ? "disabled" : ""}>Fertig</button>
         `;
         div.querySelector("button").onclick = async () => {
-          await updateDoc(doc(db,"orders",docSnap.id), { status:"fertig" });
+          await updateDoc(doc(db, "orders", docSnap.id), { status: "fertig" });
         };
         container.appendChild(div);
       });
     });
+
+    // --- QR Code + Link für Gäste ---
+    const basePath = window.location.origin + window.location.pathname.replace("index.html", "");
+    const orderUrl = basePath + "order";
+
+    document.getElementById("qr-code").src =
+      "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" + encodeURIComponent(orderUrl);
+
+    document.getElementById("order-link").href = orderUrl;
+    document.getElementById("order-link").textContent = "➡️ Zur Bestellseite (" + orderUrl + ")";
   </script>
+
 </body>
 </html>
