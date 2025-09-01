@@ -1,84 +1,52 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <title>Getränk bestellen</title>
-    <style>
-        body {
-            font-family: sans-serif;
-            padding: 20px;
-        }
-
-        button {
-            margin: 5px;
-            padding: 10px 20px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Getränke bestellen</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    .drink { border:1px solid #ccc; margin:10px 0; padding:10px; border-radius:10px; }
+    img { max-width:100px; display:block; margin-bottom:5px; }
+    button { margin-top:5px; padding:5px 10px; }
+    #addBtn { margin-bottom:20px; padding:10px 15px; background:#4CAF50; color:white; border:none; cursor:pointer; }
+  </style>
 </head>
 <body>
-    <h1>Bestellung aufgeben</h1>
-    <div id="drinks"></div>
-    
-    <h2>Getränke</h2>
-    <div id="drinkList"></div>
-    
-    <a href="add.html">
-      <button id="add">
-        <p>Getränke hinzufügen</p>
-      </button>
-    </a>
+  <h1>Getränke bestellen</h1>
+  <button id="addBtn" onclick="window.location.href='add.html'">➕ Getränk hinzufügen</button>
+  <div id="drinkList"></div>
 
+  <script type="module">
+    import { db } from "./firebase.js";
+    import { collection, onSnapshot, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-    <script type="module">
-        import { db } from "./firebase.js";
-        import { collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+    const drinkList = document.getElementById("drinkList");
 
-        const drinks = ["Kaffee", "Tee", "Latte", "Espresso"];
-        const container = document.getElementById("drinks");
-
-        drinks.forEach(drink => {
-            const btn = document.createElement("button");
-            btn.textContent = drink;
-            btn.onclick = async () => {
-                await addDoc(collection(db, "orders"), {
-                    drink,
-                    status: "offen",
-                    created: serverTimestamp()
-                });
-                alert(`Bestellt: ${drink}`);
-            };
-            container.appendChild(btn);
-        });
-        </script>
-            <script>
-      function loadDrinks() {
-        const drinks = JSON.parse(localStorage.getItem("drinks")) || [];
-        const list = document.getElementById("drinkList");
-        list.innerHTML = "";
-    
-        drinks.forEach(drink => {
-          const item = document.createElement("div");
-          item.style.border = "1px solid #ccc";
-          item.style.margin = "10px 0";
-          item.style.padding = "10px";
-    
-          item.innerHTML = `
-            <img src="${drink.image}" alt="${drink.name}" style="max-width:100px"><br>
-            <strong>${drink.name}</strong><br>
-            <em>${drink.description}</em><br>
-            <button onclick="orderDrink('${drink.name}')">Bestellen</button>
-          `;
-          list.appendChild(item);
-        });
-      }
-    
-      function orderDrink(name) {
-        alert("Du hast " + name + " bestellt!");
-        // Hier könnte man die Bestellung erweitern
-      }
-    
-      window.onload = loadDrinks;
-
-    </script>
+    // Getränke live aus Firebase anzeigen
+    const drinksRef = collection(db, "drinks");
+    onSnapshot(drinksRef, snapshot => {
+      drinkList.innerHTML = "";
+      snapshot.forEach(docSnap => {
+        const d = docSnap.data();
+        const div = document.createElement("div");
+        div.className = "drink";
+        div.innerHTML = `
+          <img src="${d.image}" alt="${d.name}">
+          <strong>${d.name}</strong><br>
+          <em>${d.description}</em><br>
+          <button>Bestellen</button>
+        `;
+        div.querySelector("button").onclick = async () => {
+          await addDoc(collection(db, "orders"), {
+            drinkName: d.name,
+            status: "offen",
+            created: serverTimestamp()
+          });
+          alert("Bestellung aufgegeben: " + d.name);
+        };
+        drinkList.appendChild(div);
+      });
+    });
+  </script>
 </body>
 </html>
