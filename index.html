@@ -66,9 +66,12 @@
     });
 
     // --- QR Code + Link für Gäste ---
-    const orderUrl = window.location.origin + "/order.html";
+    const basePath = window.location.origin + window.location.pathname.replace("index.html", "");
+    const orderUrl = basePath + "order";
+
     document.getElementById("qr-code").src =
       "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" + encodeURIComponent(orderUrl);
+
     document.getElementById("order-link").href = orderUrl;
     document.getElementById("order-link").textContent = "➡️ Zur Bestellseite (" + orderUrl + ")";
   </script>
