@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Getränk hinzufügen</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 20px auto;
+      padding: 20px;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+    }
+    button {
+      margin-top: 15px;
+      padding: 10px;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #45a049;
+    }
+  </style>
+</head>
+<body>
+  <h1>Getränk hinzufügen</h1>
+  <form id="drinkForm">
+    <label for="image">Bild-URL:</label>
+    <input type="text" id="image" required>
+
+    <label for="name">Name:</label>
+    <input type="text" id="name" required>
+
+    <label for="description">Beschreibung:</label>
+    <textarea id="description" rows="4"></textarea>
+
+    <button type="submit">Speichern</button>
+  </form>
+
+  <script>
+    document.getElementById("drinkForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      const image = document.getElementById("image").value;
+      const name = document.getElementById("name").value;
+      const description = document.getElementById("description").value;
+
+      const drink = { image, name, description };
+
+      // Hol bestehende Liste oder leere
+      let drinks = JSON.parse(localStorage.getItem("drinks")) || [];
+      drinks.push(drink);
+
+      localStorage.setItem("drinks", JSON.stringify(drinks));
+
+      alert("Getränk gespeichert!");
+      window.location.href = "order.html"; // zurück zur Bestellseite
+    });
+  </script>
+</body>
+</html>
