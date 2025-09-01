@@ -9,6 +9,7 @@
     .order { border: 1px solid #ccc; margin: 10px; padding: 15px; border-radius: 10px; }
     .done { background: #c8f7c5; }
     #qr { text-align: center; margin: 20px; }
+    #order-link { display: block; margin-top: 10px; font-size: 18px; }
   </style>
 </head>
 <body>
@@ -17,6 +18,7 @@
   <div id="qr">
     <h3>Gäste können hier bestellen:</h3>
     <img id="qr-code" alt="QR Code">
+    <a id="order-link" href="#" target="_blank">➡️ Zur Bestellseite</a>
   </div>
 
   <h2>Offene Bestellungen</h2>
@@ -63,10 +65,12 @@
       });
     });
 
-    // --- QR Code für Gäste ---
-    const qrImg = document.getElementById("qr-code");
+    // --- QR Code + Link für Gäste ---
     const orderUrl = window.location.origin + "/order.html";
-    qrImg.src = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" + encodeURIComponent(orderUrl);
+    document.getElementById("qr-code").src =
+      "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" + encodeURIComponent(orderUrl);
+    document.getElementById("order-link").href = orderUrl;
+    document.getElementById("order-link").textContent = "➡️ Zur Bestellseite (" + orderUrl + ")";
   </script>
 </body>
 </html>
