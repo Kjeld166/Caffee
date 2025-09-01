@@ -1,0 +1,44 @@
+﻿<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Getränk bestellen</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 20px;
+        }
+
+        button {
+            margin: 5px;
+            padding: 10px 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Bestellung aufgeben</h1>
+    <div id="drinks"></div>
+
+    <script type="module">
+        import { db } from "./firebase.js";
+        import { collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+        const drinks = ["Kaffee", "Tee", "Latte", "Espresso"];
+        const container = document.getElementById("drinks");
+
+        drinks.forEach(drink => {
+            const btn = document.createElement("button");
+            btn.textContent = drink;
+            btn.onclick = async () => {
+                await addDoc(collection(db, "orders"), {
+                    drink,
+                    status: "offen",
+                    created: serverTimestamp()
+                });
+                alert(`Bestellt: ${drink}`);
+            };
+            container.appendChild(btn);
+        });
+    </script>
+</body>
+</html>
